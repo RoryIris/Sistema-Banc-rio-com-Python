@@ -39,7 +39,7 @@ def main():
 
         elif opcao == "3":
 
-            listar_usuarios(usuarios)
+            consultar_usuario(usuarios)
             input("\nPressione ENTER para voltar ao menu...")
 
         elif opcao == "4":
