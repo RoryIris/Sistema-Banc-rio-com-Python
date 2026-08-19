@@ -1,11 +1,12 @@
 from datetime import datetime
 from zoneinfo import ZoneInfo
+import time 
 
 menu = """
 
-[1] criar usuário
-[2] criar conta
-[3] listar usuários
+[1] Criar usuário
+[2] Criar conta
+[3] Consultar usuario
 [4] Depositar
 [5] Sacar
 [6] Extrato
@@ -29,26 +30,31 @@ def main():
         if opcao == "1":
 
             usuarios = criar_usuario(usuarios)
+            input("\nPressione ENTER para voltar ao menu...")
 
         elif opcao == "2":
            
            usuarios, contas = criar_conta(usuarios, contas)
+           input("\nPressione ENTER para voltar ao menu...")
 
         elif opcao == "3":
 
             listar_usuarios(usuarios)
+            input("\nPressione ENTER para voltar ao menu...")
 
         elif opcao == "4":
 
             conta = encontrar_conta(contas)
             if conta is not None:
                 conta = depositar(conta)
+            input("\nPressione ENTER para voltar ao menu...")
 
         elif opcao == "5":
 
             conta = encontrar_conta(contas)
             if conta is not None:
                 conta = sacar(conta, limite, LIMITE_SAQUES)
+            input("\nPressione ENTER para voltar ao menu...")    
 
         elif opcao == "6":
                 
@@ -56,10 +62,12 @@ def main():
 
                 if conta is not None:
                     exibir_extrato(conta)
+                input("\nPressione ENTER para voltar ao menu...")    
 
         elif opcao == "7":
 
                     transferir(contas)
+                    input("\nPressione ENTER para voltar ao menu...")
 
         elif opcao == "0":
             break
@@ -73,19 +81,23 @@ def depositar(conta):
     valor = float(input("Informe o valor do depósito: "))
 
     if valor > 0:
+
         conta["saldo"] += valor
         horario =  horario_atual()
         conta["extrato"] += f"Depósito: R$ {valor:.2f} - {horario.strftime('%d/%m/%Y %H:%M:%S')}\n"
         print(f"Depósito de R$ {valor:.2f} realizado com sucesso!")
+        time.sleep(1)
+
     else:
+
         print("Operação falhou! O valor informado é inválido.")
+        time.sleep(1)
 
     return conta
      
 
 def sacar(conta, limite, LIMITE_SAQUES):
 
-       
     valor = float(input("Informe o valor do saque: "))
 
     excedeu_saldo = valor > conta["saldo"]
@@ -94,18 +106,23 @@ def sacar(conta, limite, LIMITE_SAQUES):
 
     if excedeu_saldo:
         print("Operação falhou! Saldo insuficiente.")
+        time.sleep(1)
     elif excedeu_limite:
         print("Operação falhou! O valor do saque excede o limite.")
+        time.sleep(1)
     elif excedeu_saques:
         print("Operação falhou! Número máximo de saques excedido.")
+        time.sleep(1)
     elif valor > 0:
         conta["saldo"] -= valor
         horario = horario_atual()
         conta["extrato"] += f"Saque: R$ {valor:.2f} - {horario.strftime('%d/%m/%Y %H:%M:%S')}\n"
         conta["numero_saques"] += 1
         print(f"Saque de R$ {valor:.2f} realizado com sucesso!")
+        time.sleep(1)
     else:
         print("Operação falhou! O valor informado é inválido.")
+        time.sleep(1)
     return conta
   
 
@@ -115,27 +132,42 @@ def exibir_extrato(conta):
         print("Não foram realizadas movimentações." if not conta["extrato"] else conta["extrato"])
         print(f"\nSaldo: R$ {conta['saldo']:.2f}")
         print("==========================================")
+        time.sleep(1)
 
 
 def criar_usuario(usuarios):
     nome = input("Informe o nome completo: ")
-    data_nascimento = input("Informe a data de nascimento (dd-mm-aaaa): ")
-    cpf = (input("Informe o CPF (somente números): ").replace(".", "").replace("-", ""))
-    endereco = input("Informe o endereço (logradouro, nro - bairro - cidade/sigla estado): ")
+    while True:
+        data_nascimento = input("Informe a data de nascimento (dd-mm-aaaa): ").replace("/", "").replace("-", "")
+        if len(data_nascimento) != 8 or not data_nascimento.isdigit():
+            print("Data de nascimento deve conter 8 numeros.")
+            time.sleep(1)
+        else:
+            break    
+    
+    while True:
+        cpf = input("Informe o CPF (somente números): ").replace(".", "").replace("-", "")
+        if len(cpf) != 11 or not cpf.isdigit():
+            print("CPF deve conter 11 numeros.")
+            time.sleep(1)
+        else:
+            break           
 
     for usuario in usuarios:
         if usuario["cpf"] == cpf:
             print("Já existe usuário com esse CPF!")
-            return 
+            time.sleep(1)
+            return usuarios
 
-    usuarios.append({"nome": nome, "data_nascimento": data_nascimento, "cpf": cpf, "endereco": endereco})
+    usuarios.append({"nome": nome, "data_nascimento": data_nascimento, "cpf": cpf})
 
     print("Usuário criado com sucesso!")
+    time.sleep(2)
 
     return usuarios
 
 
-def listar_usuarios(usuarios):
+def consultar_usuario(usuarios):
     cpf = input("Informe o CPF do usuário para listar: ").replace(".", "").replace("-", "")
 
     usuario_encontrado = None
@@ -148,12 +180,13 @@ def listar_usuarios(usuarios):
             print(f"Nome: {usuario['nome']}")
             print(f"CPF: {usuario['cpf']}")
             print(f"Data de Nascimento: {usuario['data_nascimento']}")
-            print(f"Endereço: {usuario['endereco']}")
             print("================")
+            time.sleep(1)
             return
 
     if usuario_encontrado is None:
         print("Usuário não encontrado!")
+        time.sleep(1)
         return
 
 
@@ -177,10 +210,12 @@ def criar_conta(usuarios, contas):
                 "numero_saques": 0
              })
             print("Conta criada com sucesso!")
+            time.sleep(1)
             return usuarios, contas
 
     if usuario_encontrado is None:
            print("Usuário não encontrado!")
+           time.sleep(1)
            return usuarios, contas     
 
 
@@ -193,6 +228,7 @@ def encontrar_conta(contas):
             return conta
 
     print("Conta nao encontrada.")
+    time.sleep(1)
     return None
 
     
@@ -206,6 +242,7 @@ def transferir(contas):
 
     if conta_origem["usuario"]["cpf"] == conta_destino["usuario"]["cpf"] and conta_origem["numero"] == conta_destino["numero"]:
             print("Operaçao falhou! A conta de origem e destino são iguais.")
+            time.sleep(1)
             return
   
     valor = float(input("Informe o valor da transferencia: "))
@@ -213,16 +250,24 @@ def transferir(contas):
     excedeu_saldo = valor > conta_origem["saldo"]
 
     if excedeu_saldo:
+
         print("Saldo da conta insuficiente.")
+        time.sleep(1)
+
     elif valor > 0:
+
         conta_origem["saldo"]  -= valor
         conta_destino["saldo"] += valor
         horario = horario_atual()
         conta_origem["extrato"] += f"transferencia para {conta_destino['usuario']['nome']}: R$ {valor:.2f} - {horario.strftime('%d/%m/%Y %H:%M:%S')}\n"
         conta_destino["extrato"] += f"transferencia recebida de {conta_origem['usuario']['nome']}: R$ {valor:.2f} - {horario.strftime('%d/%m/%Y %H:%M:%S')}\n"
         print(f"Tranferencia de R$ {valor:.2f} realizado com sucesso!")
+        time.sleep(1)
+
     else:
         print(f"Operacao falhou! valor informado é invalido.")
+        time.sleep(1)
+
 
 def horario_atual():
 
